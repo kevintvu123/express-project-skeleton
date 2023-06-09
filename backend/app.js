@@ -5,6 +5,7 @@ const cors = require('cors');
 const csurf = require('csurf');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const routes = require('./routes');
 
 //Bool to check if env is in prod by checking environment key in config
 const { environment } = require('./config');
@@ -44,3 +45,7 @@ app.use(
         }
     })
 );
+
+app.use(routes); // Connect all the routes
+
+module.exports = app;
