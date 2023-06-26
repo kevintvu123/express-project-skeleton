@@ -6,6 +6,7 @@ const csurf = require('csurf');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
+const { ValidationError } = require('sequelize');
 
 //Bool to check if env is in prod by checking environment key in config
 const { environment } = require('./config');
@@ -55,6 +56,17 @@ app.use((_req, _res, next) => {
     err.errors = ["The requested resource couldn't be found."];
     err.status = 404;
     next(err);
-  });
+});
+
+// Process sequelize errors
+app.use((err, _req, _res, next) => {
+    // Check if error is a Sequelize error:
+    // If the error is an instance of ValidationError from sequelize package, then the error was created from a Sequelize database validation error
+    if (err instanceof ValidationError) {
+        err.errors = err.errors.map((e) => e.message);
+        err.title = 'Validation error';
+    }
+    next(err);
+});
 
 module.exports = app;
